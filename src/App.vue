@@ -28,6 +28,7 @@
         <ShouldComponentUpdateDemo />
       </div> -->
     </div>
+    <h3>Fuente: <a href="https://kinsta.com/es/blog/angular-vs-vue/">Angular vs Vue: Una Comparativa Cara a Cara - Kinsta.com</a></h3>
   </div>
 </template>
 
