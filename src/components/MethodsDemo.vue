@@ -2,6 +2,7 @@
 <template>
   <div>
     <h2>Métodos</h2>
+    <p> Utilizamos los métodos cuando buscamos cambiar el estado de un componente o si se produce un evento que no está necesariamente relacionado con los datos de la instancia que se está cambiando.</p>
     <p>{{ reversedMessage }}</p>
     <input v-model="message" placeholder="Escribe algo">
     <button @click="reverseMessage">Revertir Mensaje</button>

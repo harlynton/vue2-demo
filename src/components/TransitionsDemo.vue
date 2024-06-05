@@ -2,6 +2,7 @@
 <template>
   <div>
     <h2>Transiciones y Animaciones CSS</h2>
+    <p>El componente <i>'Transition'</i> rodea el texto, para hacerlo aparecer/ desaparecer:</p>
     <button @click="toggle">Mostrar/Ocultar</button>
     <transition name="fade">
       <p v-if="show">Esto es una transición con CSS</p>

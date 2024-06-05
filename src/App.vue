@@ -1,14 +1,33 @@
 <template>
   <div id="app">
     <h1>Demostración de Vue 2</h1>
-    <VirtualDomDemo />
-    <DataBindingDemo />
-    <TransitionsDemo />
-    <ComputedPropertiesDemo />
-    <WatchersDemo />
-    <MethodsDemo />
-    <DirectivesComponentsDemo />
-    <ShouldComponentUpdateDemo />
+    <p>Estas son las principales bondades de Vue 2 frente a Angular</p>
+    <div class="card-container">
+      <div class="card">
+        <VirtualDomDemo />
+      </div>
+      <div class="card">
+        <DataBindingDemo />
+      </div>
+      <div class="card">
+        <TransitionsDemo />
+      </div>
+      <div class="card">
+        <ComputedPropertiesDemo />
+      </div>
+      <div class="card">
+        <WatchersDemo />
+      </div>
+      <div class="card">
+        <MethodsDemo />
+      </div>
+      <div class="card">
+        <DirectivesComponentsDemo />
+      </div>
+      <!-- <div class="card">
+        <ShouldComponentUpdateDemo />
+      </div> -->
+    </div>
   </div>
 </template>
 
@@ -20,7 +39,10 @@ import ComputedPropertiesDemo from './components/ComputedPropertiesDemo.vue'
 import WatchersDemo from './components/WatchersDemo.vue'
 import MethodsDemo from './components/MethodsDemo.vue'
 import DirectivesComponentsDemo from './components/DirectivesComponentsDemo.vue'
-import ShouldComponentUpdateDemo from './components/ShouldComponentUpdateDemo.vue'
+// import ShouldComponentUpdateDemo from './components/ShouldComponentUpdateDemo.vue'
+
+// Importa el archivo de estilos
+import './styles.css'
 
 export default {
   name: 'App',
@@ -32,7 +54,7 @@ export default {
     WatchersDemo,
     MethodsDemo,
     DirectivesComponentsDemo,
-    ShouldComponentUpdateDemo
+    // ShouldComponentUpdateDemo
   }
 }
 </script>
