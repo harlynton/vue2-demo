@@ -1,28 +1,38 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <h1>Demostración de Vue 2</h1>
+    <VirtualDomDemo />
+    <DataBindingDemo />
+    <TransitionsDemo />
+    <ComputedPropertiesDemo />
+    <WatchersDemo />
+    <MethodsDemo />
+    <DirectivesComponentsDemo />
+    <ShouldComponentUpdateDemo />
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import VirtualDomDemo from './components/VirtualDomDemo.vue'
+import DataBindingDemo from './components/DataBindingDemo.vue'
+import TransitionsDemo from './components/TransitionsDemo.vue'
+import ComputedPropertiesDemo from './components/ComputedPropertiesDemo.vue'
+import WatchersDemo from './components/WatchersDemo.vue'
+import MethodsDemo from './components/MethodsDemo.vue'
+import DirectivesComponentsDemo from './components/DirectivesComponentsDemo.vue'
+import ShouldComponentUpdateDemo from './components/ShouldComponentUpdateDemo.vue'
 
 export default {
   name: 'App',
   components: {
-    HelloWorld
+    VirtualDomDemo,
+    DataBindingDemo,
+    TransitionsDemo,
+    ComputedPropertiesDemo,
+    WatchersDemo,
+    MethodsDemo,
+    DirectivesComponentsDemo,
+    ShouldComponentUpdateDemo
   }
 }
 </script>
-
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
-</style>
