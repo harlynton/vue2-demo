@@ -1,6 +1,7 @@
 {
   "projects": {
-    "testing": "vue2-demo-3b507"
+    "testing": "vue2-demo-3b507",
+    "default": "vue2-demo-3b507"
   },
   "targets": {},
   "etags": {},
