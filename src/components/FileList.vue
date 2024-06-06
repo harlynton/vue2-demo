@@ -12,7 +12,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="file in files" :key="file.name">
+        <tr v-for="file in files" :key="file.name" @click="selectFile(file)">
           <td>{{ file.name }}</td>
           <td>{{ file.size }}</td>
           <td>{{ file.contentType }}</td>
@@ -21,11 +21,23 @@
       </tbody>
     </table>
     <p v-if="message">{{ message }}</p>
+
+    <!-- Modal -->
+    <div v-if="selectedFile" class="modal">
+      <div class="modal-content">
+        <span class="close" @click="closeModal">&times;</span>
+        <h3>Ingrese la contraseña para descargar el archivo</h3>
+        <input type="password" v-model="password" />
+        <button @click="downloadFile">Enviar</button>
+        <p v-if="modalMessage">{{ modalMessage }}</p>
+      </div>
+    </div>
+    <div v-if="selectedFile" class="modal-overlay" @click="closeModal"></div>
   </div>
 </template>
 
 <script>
-import { ref, listAll, getMetadata } from 'firebase/storage';
+import { ref, listAll, getMetadata, getDownloadURL } from 'firebase/storage';
 import { storage } from '../firebase';
 
 export default {
@@ -33,12 +45,16 @@ export default {
   data() {
     return {
       files: [],
-      message: ''
+      message: '',
+      selectedFile: null,
+      password: '',
+      modalMessage: '',
+      correctPassword: 'campanita'
     };
   },
   async created() {
     try {
-      const storageRef = ref(storage, '/'); 
+      const storageRef = ref(storage, '/');
       const result = await listAll(storageRef);
 
       const filesWithMetadata = await Promise.all(result.items.map(async (item) => {
@@ -59,6 +75,41 @@ export default {
       console.error('Error cargando archivos:', error);
     }
   },
+  methods: {
+    selectFile(file) {
+      this.selectedFile = file;
+      this.password = '';
+      this.modalMessage = '';
+    },
+    closeModal() {
+      this.selectedFile = null;
+    },
+    async downloadFile() {
+      if (this.password === this.correctPassword) {
+        try {
+          const url = await getDownloadURL(this.selectedFile.ref);
+          if (this.selectedFile.contentType === 'application/pdf' || this.selectedFile.contentType === 'image/png') {
+            // Abrir PDF en una nueva pestaña
+            window.open(url, '_blank');
+          } else {
+            // Descargar otros archivos
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = this.selectedFile.name;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+          }
+          this.closeModal();
+        } catch (error) {
+          this.modalMessage = `Error descargando el archivo: ${error.message}`;
+          console.error('Error descargando el archivo:', error);
+        }
+      } else {
+        this.modalMessage = 'Contraseña incorrecta';
+      }
+    }
+  }
 };
 </script>
 
@@ -81,5 +132,51 @@ th {
 
 tbody tr:hover {
   background-color: #f1f1f1;
+}
+
+.modal {
+  display: block;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.modal-content {
+  background-color: #fefefe;
+  margin: 15% auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%;
+  position: relative;
+  z-index: 1001;
+}
+
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 100;
 }
 </style>
