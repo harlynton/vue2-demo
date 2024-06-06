@@ -1,15 +1,14 @@
 <!-- /src/components/FileManager.vue -->
 <template>
   <div>
-    <h2>File Manager</h2>
+    <h2>Carga de Archivos</h2>
     <input type="file" @change="onFileChange" accept=".zip" />
-    <button @click="uploadFiles" :disabled="!file">Upload</button>
+    <button @click="uploadFiles" :disabled="!file">Cargar</button>
     <p v-if="message">{{ message }}</p>
   </div>
 </template>
 
 <script>
-import JSZip from 'jszip';
 import { storage, ref, uploadBytes } from '../firebase';
 
 export default {
@@ -27,26 +26,18 @@ export default {
         this.file = selectedFile;
         this.message = '';
       } else {
-        this.message = 'Please select a ZIP file';
+        this.message = 'Solo se permiten archivos en formato ZIP.';
         this.file = null;
       }
     },
     async uploadFiles() {
       if (this.file) {
+        const storageRef = ref(storage, this.file.name);
         try {
-          const zip = new JSZip();
-          const content = await zip.loadAsync(this.file);
-          const files = Object.keys(content.files);
-
-          for (const filename of files) {
-            const fileData = await content.files[filename].async('blob');
-            const storageRef = ref(storage, filename);
-            await uploadBytes(storageRef, fileData);
-          }
-
-          this.message = 'Files uploaded successfully!';
+          await uploadBytes(storageRef, this.file);
+          this.message = 'Archivo cargado exitosamente.';
         } catch (error) {
-          this.message = `Error uploading files: ${error.message}`;
+          this.message = `Error cargando archivo: ${error.message}`;
         }
       }
     }
