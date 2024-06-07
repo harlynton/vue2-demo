@@ -1,4 +1,3 @@
-<!-- /src/components/FileList.vue -->
 <template>
   <div>
     <h2>Lista de Archivos</h2>
@@ -38,7 +37,8 @@
 
 <script>
 import { ref, listAll, getMetadata, getDownloadURL } from 'firebase/storage';
-import { storage } from '../firebase';
+import { storage, db } from '../firebase';
+import { collection, getDocs } from "firebase/firestore";
 
 export default {
   name: 'FileList',
@@ -49,10 +49,11 @@ export default {
       selectedFile: null,
       password: '',
       modalMessage: '',
-      correctPassword: 'campanita'
+      correctPassword: ''
     };
   },
   async created() {
+    this.fetchData();
     try {
       const storageRef = ref(storage, '/');
       const result = await listAll(storageRef);
@@ -76,6 +77,24 @@ export default {
     }
   },
   methods: {
+    async fetchData() {
+      try {
+        console.log("Fetching data from Firestore...");
+        const querySnapshot = await getDocs(collection(db, "config"));
+        let data = [];
+        console.log("Query Snapshot size: ", querySnapshot.size);
+        querySnapshot.forEach(doc => {
+          console.log("Document ID:", doc.id);
+          console.log("Document data: ", doc.data());
+          data.push(doc.data());
+        });
+        console.log("Data fetched:", data);
+        // Aquí asumimos que deseas usar la primera contraseña como la correcta
+        this.correctPassword = data.length ? data[0].password : ''; 
+      } catch (error) {
+        console.error("Error fetching data: ", error);
+      }
+    },
     selectFile(file) {
       this.selectedFile = file;
       this.password = '';
@@ -112,6 +131,7 @@ export default {
   }
 };
 </script>
+
 
 <style scoped>
 table {
