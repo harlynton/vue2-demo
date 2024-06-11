@@ -37,8 +37,9 @@
 
 <script>
 import axios from 'axios';
-import { db } from '../firebase';
+import { db, storage } from '../firebase';
 import { collection, getDocs } from "firebase/firestore";
+import { ref, getDownloadURL } from 'firebase/storage';
 
 export default {
   name: 'FileList',
@@ -88,6 +89,10 @@ export default {
       try {
         const response = await axios.post('https://us-central1-vue2-demo-3b507.cloudfunctions.net/validatePassword', {
           password: this.password
+        }, {
+          headers: {
+            'Content-Type': 'application/json'
+          }
         });
 
         if (response.data.message === 'Password correct') {
@@ -102,8 +107,10 @@ export default {
     },
     async downloadFile() {
       try {
-        // Lógica para descargar el archivo
-        console.log("Downloading file:", this.selectedFile.name);
+        const storageRef = ref(storage, `gs://vue2-demo-3b507.appspot.com/${this.selectedFile.name}`);
+        const url = await getDownloadURL(storageRef);
+
+        window.open(url, '_blank');
         this.closeModal();
       } catch (error) {
         this.modalMessage = `Error descargando el archivo: ${error.message}`;

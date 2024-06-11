@@ -2,8 +2,6 @@ import Vue from "vue";
 import App from "./App.vue";
 import router from "./router";
 
-import "../src/components/FirestoreTest.js";
-
 Vue.config.productionTip = false;
 
 new Vue({
