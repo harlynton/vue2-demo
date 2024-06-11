@@ -27,7 +27,7 @@
         <span class="close" @click="closeModal">&times;</span>
         <h3>Ingrese la contraseña para descargar el archivo</h3>
         <input type="password" v-model="password" />
-        <button @click="downloadFile">Enviar</button>
+        <button @click="validatePassword">Enviar</button>
         <p v-if="modalMessage">{{ modalMessage }}</p>
       </div>
     </div>
@@ -36,8 +36,8 @@
 </template>
 
 <script>
-import { ref, listAll, getMetadata, getDownloadURL } from 'firebase/storage';
-import { storage, db } from '../firebase';
+import axios from 'axios';
+import { db } from '../firebase';
 import { collection, getDocs } from "firebase/firestore";
 
 export default {
@@ -49,50 +49,31 @@ export default {
       selectedFile: null,
       password: '',
       modalMessage: '',
-      correctPassword: ''
     };
   },
   async created() {
-    this.fetchData();
-    try {
-      const storageRef = ref(storage, '/');
-      const result = await listAll(storageRef);
-
-      const filesWithMetadata = await Promise.all(result.items.map(async (item) => {
-        const metadata = await getMetadata(item);
-        return {
-          name: item.name,
-          size: metadata.size,
-          contentType: metadata.contentType,
-          updated: metadata.updated,
-          ref: item,
-        };
-      }));
-
-      this.files = filesWithMetadata;
-
-    } catch (error) {
-      this.message = `Error cargando archivos: ${error.message}`;
-      console.error('Error cargando archivos:', error);
-    }
+    await this.fetchData();
   },
   methods: {
     async fetchData() {
       try {
         console.log("Fetching data from Firestore...");
-        const querySnapshot = await getDocs(collection(db, "config"));
-        let data = [];
-        console.log("Query Snapshot size: ", querySnapshot.size);
+        const querySnapshot = await getDocs(collection(db, "filesData"));
+        const filesData = [];
         querySnapshot.forEach(doc => {
-          console.log("Document ID:", doc.id);
-          console.log("Document data: ", doc.data());
-          data.push(doc.data());
+          const data = doc.data();
+          filesData.push({
+            id: doc.id,
+            name: data.nombreArchivo,
+            size: data.pesoArchivo,
+            contentType: data.tipoArchivo,
+            updated: data.ultimaModificacionArchivo
+          });
         });
-        console.log("Data fetched:", data);
-        // Aquí asumimos que deseas usar la primera contraseña como la correcta
-        this.correctPassword = data.length ? data[0].password : ''; 
+        this.files = filesData;
       } catch (error) {
         console.error("Error fetching data: ", error);
+        this.message = `Error cargando archivos: ${error.message}`;
       }
     },
     selectFile(file) {
@@ -103,37 +84,38 @@ export default {
     closeModal() {
       this.selectedFile = null;
     },
-    async downloadFile() {
-      if (this.password === this.correctPassword) {
-        try {
-          const url = await getDownloadURL(this.selectedFile.ref);
-          if (this.selectedFile.contentType === 'application/pdf' || this.selectedFile.contentType === 'image/png') {
-            // Abrir PDF en una nueva pestaña
-            window.open(url, '_blank');
-          } else {
-            // Descargar otros archivos
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = this.selectedFile.name;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-          }
-          this.closeModal();
-        } catch (error) {
-          this.modalMessage = `Error descargando el archivo: ${error.message}`;
-          console.error('Error descargando el archivo:', error);
+    async validatePassword() {
+      try {
+        const response = await axios.post('https://us-central1-vue2-demo-3b507.cloudfunctions.net/validatePassword', {
+          password: this.password
+        });
+
+        if (response.data.message === 'Password correct') {
+          this.downloadFile();
+        } else {
+          this.modalMessage = 'Contraseña incorrecta';
         }
-      } else {
-        this.modalMessage = 'Contraseña incorrecta';
+      } catch (error) {
+        console.error('Error validating password:', error);
+        this.modalMessage = `Error: ${error.response ? error.response.data : error.message}`;
+      }
+    },
+    async downloadFile() {
+      try {
+        // Lógica para descargar el archivo
+        console.log("Downloading file:", this.selectedFile.name);
+        this.closeModal();
+      } catch (error) {
+        this.modalMessage = `Error descargando el archivo: ${error.message}`;
+        console.error('Error descargando el archivo:', error);
       }
     }
   }
 };
 </script>
 
-
 <style scoped>
+/* Mantén tus estilos CSS aquí */
 table {
   width: 100%;
   border-collapse: collapse;
